@@ -8,6 +8,8 @@ const h = React.createElement
 
 const API_BASE_URL = (typeof window !== 'undefined' && window.CASINO_API_BASE) || 'http://localhost:4000'
 
+const formatUSD = (value) => `$${Number(value || 0).toFixed(2)}`
+
 const fetchJson = async (path) => {
   const response = await fetch(`${API_BASE_URL}${path}`)
   if (!response.ok) {
@@ -24,6 +26,7 @@ const App = () => {
   const [simulation, setSimulation] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [account, setAccount] = useState({ balance: 500, boostTokens: 3 })
 
   useEffect(() => {
     Promise.all([fetchJson('/api/events'), fetchJson('/api/promotions')])
@@ -41,8 +44,18 @@ const App = () => {
     [promotions]
   )
 
+  const totalStake = useMemo(
+    () =>
+      bets.reduce((sum, bet) => {
+        const stakeValue = Number(bet.stake)
+        return Number.isNaN(stakeValue) ? sum : sum + stakeValue
+      }, 0),
+    [bets]
+  )
+
   const handleAddBet = (bet) => {
-    setBets((prev) => [...prev, { ...bet, stake: bet.stake ?? 10 }])
+    const defaultStake = Number.isFinite(Number(bet.stake)) ? Number(bet.stake) : 10
+    setBets((prev) => [...prev, { ...bet, stake: defaultStake }])
   }
 
   const handleRemoveBet = (index) => {
@@ -50,12 +63,29 @@ const App = () => {
   }
 
   const handleUpdateStake = (index, stake) => {
-    setBets((prev) => prev.map((bet, idx) => (idx === index ? { ...bet, stake } : bet)))
+    const sanitizedStake = Number.isNaN(Number(stake)) ? 0 : Number(stake)
+    setBets((prev) => prev.map((bet, idx) => (idx === index ? { ...bet, stake: sanitizedStake } : bet)))
   }
 
   const handleSimulate = async () => {
     if (bets.length === 0) {
       setError('Add at least one bet to simulate your slip.')
+      return
+    }
+
+    const hasInvalidStake = bets.some((bet) => Number(bet.stake) <= 0)
+    if (hasInvalidStake) {
+      setError('Each wager must have a stake of at least $1.00.')
+      return
+    }
+
+    if (totalStake > account.balance) {
+      setError(`Insufficient balance. You need ${formatUSD(totalStake)} but only have ${formatUSD(account.balance)}.`)
+      return
+    }
+
+    if (selectedPromo && account.boostTokens === 0) {
+      setError('You have no profit boost tokens remaining.')
       return
     }
 
@@ -84,6 +114,18 @@ const App = () => {
 
       const data = await response.json()
       setSimulation(data)
+      setAccount((prev) => {
+        const updatedBalance = Number((prev.balance + Number(data.netProfit || 0)).toFixed(2))
+        const shouldConsumeToken = Boolean(data.promoConsumed && selectedPromo && prev.boostTokens > 0)
+        return {
+          balance: updatedBalance,
+          boostTokens: shouldConsumeToken ? prev.boostTokens - 1 : prev.boostTokens
+        }
+      })
+      setBets([])
+      if (selectedPromo) {
+        setSelectedPromo('')
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -102,6 +144,12 @@ const App = () => {
         'p',
         null,
         'Experiment with moneyline wagers, stack parlays, and explore promotional boosts without risking real money. This sandbox mirrors a modern sportsbook experience while giving you insights into how promos impact your expected returns.'
+      ),
+      h(
+        'div',
+        { className: 'account-summary' },
+        h('span', null, `Account Balance: ${formatUSD(account.balance)}`),
+        h('span', null, `Profit Boost Tokens: ${account.boostTokens}`)
       )
     ),
     error
@@ -127,7 +175,8 @@ const App = () => {
         h(PromotionList, {
           promotions: promoOptions,
           selectedPromo,
-          onSelectPromo: setSelectedPromo
+          onSelectPromo: setSelectedPromo,
+          tokensLeft: account.boostTokens
         })
       ),
       h(
@@ -140,7 +189,10 @@ const App = () => {
           onRemoveBet: handleRemoveBet,
           onUpdateStake: handleUpdateStake,
           onSimulate: handleSimulate,
-          isLoading
+          isLoading,
+          balance: account.balance,
+          totalStake,
+          hasInsufficientFunds: totalStake > account.balance
         })
       )
     ),

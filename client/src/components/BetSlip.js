@@ -7,10 +7,33 @@ const findEventName = (events, eventId) => {
   return event ? event.name : 'Unknown event'
 }
 
-const BetSlip = ({ bets, events, onRemoveBet, onUpdateStake, onSimulate, isLoading }) =>
+const BetSlip = ({
+  bets,
+  events,
+  onRemoveBet,
+  onUpdateStake,
+  onSimulate,
+  isLoading,
+  balance = 0,
+  totalStake = 0,
+  hasInsufficientFunds = false
+}) =>
   h(
     'div',
     { className: 'bet-slip' },
+    h(
+      'div',
+      { className: 'bet-slip-summary' },
+      h('span', null, `Balance: $${balance.toFixed(2)}`),
+      h('span', null, `Current Stake: $${totalStake.toFixed(2)}`)
+    ),
+    hasInsufficientFunds
+      ? h(
+          'div',
+          { className: 'bet-slip-warning', role: 'alert' },
+          'You need additional funds to cover this slip.'
+        )
+      : null,
     (!bets || bets.length === 0)
       ? h('div', { className: 'empty-state' }, 'Select a side to start building your slip.')
       : null,
@@ -63,7 +86,7 @@ const BetSlip = ({ bets, events, onRemoveBet, onUpdateStake, onSimulate, isLoadi
     )),
     h(
       'button',
-      { type: 'button', onClick: onSimulate, disabled: isLoading },
+      { type: 'button', onClick: onSimulate, disabled: isLoading || hasInsufficientFunds },
       isLoading ? 'Simulating…' : 'Run Simulation'
     )
   )

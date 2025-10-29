@@ -58,6 +58,8 @@ const simulateBets = ({ bets, promoId }) => {
 
   const promo = promoId ? getPromoById(promoId) : undefined
 
+  let promoConsumed = false
+
   const betResults = bets.map((bet) => {
     const event = getEventById(bet.eventId)
     if (!event) {
@@ -74,7 +76,7 @@ const simulateBets = ({ bets, promoId }) => {
       throw new Error('Stake must be a positive number')
     }
 
-    const impliedProbability = toImpliedProbability(selection.decimal)
+    const impliedProbability = selection.probability ?? toImpliedProbability(selection.decimal)
     const potentialPayout = stake * selection.decimal
     const outcome = Math.random() <= impliedProbability ? 'win' : 'lose'
     const netResult = outcome === 'win' ? potentialPayout - stake : -stake
@@ -104,7 +106,9 @@ const simulateBets = ({ bets, promoId }) => {
   betResults.forEach((bet) => {
     if (promo && promo.type === 'insurance' && !summary.promo) {
       applyInsurance(bet, promo)
-    } else if (promo && promo.type === 'profitBoost' && !summary.promo) {
+      promoConsumed = true
+    } else if (promo && promo.type === 'profitBoost' && !promoConsumed) {
+      promoConsumed = true
       applyProfitBoost(bet, promo)
     }
 
@@ -118,6 +122,7 @@ const simulateBets = ({ bets, promoId }) => {
   if (promo && promo.type === 'parlayBoost') {
     applyParlayBoost(summary, promo)
     if (summary.promo) {
+      promoConsumed = true
       summary.promo.value = formatCurrency(summary.promo.value)
       summary.netProfit = formatCurrency(summary.netProfit)
     }
@@ -129,6 +134,7 @@ const simulateBets = ({ bets, promoId }) => {
       name: promo.name,
       description: promo.description
     } : null,
+    promoConsumed,
     ...summary
   }
 }
