@@ -1,58 +1,58 @@
+const COIN_FLIP_ODDS = {
+  american: -110,
+  decimal: 1.91,
+  probability: 0.5
+}
+
 module.exports = [
   {
-    id: 'nba-lal-bos',
-    league: 'NBA',
-    name: 'Los Angeles Lakers vs Boston Celtics',
+    id: 'coin-flip-arena',
+    league: 'Simulated League',
+    name: 'Coin Flip Arena Finals',
     startTime: '2024-03-21T23:30:00Z',
     marketType: 'moneyline',
     odds: {
       home: {
-        label: 'Los Angeles Lakers',
-        american: -120,
-        decimal: 1.83
+        label: 'Side A',
+        ...COIN_FLIP_ODDS
       },
       away: {
-        label: 'Boston Celtics',
-        american: +105,
-        decimal: 2.05
+        label: 'Side B',
+        ...COIN_FLIP_ODDS
       }
     }
   },
   {
-    id: 'nfl-kc-buf',
-    league: 'NFL',
-    name: 'Kansas City Chiefs vs Buffalo Bills',
+    id: 'coin-flip-collegiate',
+    league: 'Campus Classic',
+    name: 'Campus Classic Coin Flip',
     startTime: '2024-03-22T17:00:00Z',
     marketType: 'moneyline',
     odds: {
       home: {
-        label: 'Kansas City Chiefs',
-        american: -140,
-        decimal: 1.71
+        label: 'Heads Squad',
+        ...COIN_FLIP_ODDS
       },
       away: {
-        label: 'Buffalo Bills',
-        american: +125,
-        decimal: 2.25
+        label: 'Tails Crew',
+        ...COIN_FLIP_ODDS
       }
     }
   },
   {
-    id: 'mlb-nyy-lad',
-    league: 'MLB',
-    name: 'New York Yankees vs Los Angeles Dodgers',
+    id: 'coin-flip-showdown',
+    league: 'Prime Time Sim',
+    name: 'Prime Time Coin Flip Showdown',
     startTime: '2024-03-22T23:05:00Z',
     marketType: 'moneyline',
     odds: {
       home: {
-        label: 'New York Yankees',
-        american: -110,
-        decimal: 1.91
+        label: 'Blue Chips',
+        ...COIN_FLIP_ODDS
       },
       away: {
-        label: 'Los Angeles Dodgers',
-        american: -105,
-        decimal: 1.95
+        label: 'Red Rockets',
+        ...COIN_FLIP_ODDS
       }
     }
   }

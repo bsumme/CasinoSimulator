@@ -27,7 +27,7 @@ test('simulateBets returns a winning bet without promos', async () => {
     const result = simulateBets({
       bets: [
         {
-          eventId: 'nba-lal-bos',
+          eventId: 'coin-flip-arena',
           selection: 'home',
           stake: 25
         }
@@ -40,37 +40,37 @@ test('simulateBets returns a winning bet without promos', async () => {
   })
 })
 
-test('risk-free promo credits stake on a loss', async () => {
-  await withMockedRandom([0.99], () => {
+test('profit boost token adds 30% to winnings and marks promo consumed', async () => {
+  await withMockedRandom([0.01], () => {
     const result = simulateBets({
-      promoId: 'risk-free-50',
+      promoId: 'profit-boost-30-token',
       bets: [
         {
-          eventId: 'nba-lal-bos',
+          eventId: 'coin-flip-arena',
           selection: 'home',
-          stake: 40
+          stake: 50
         }
       ]
     })
 
-    assert.equal(result.bets[0].outcome, 'lose')
-    assert.equal(result.bets[0].promo.value, 40)
-    assert.equal(result.netProfit, 0)
+    assert.equal(result.promoApplied.id, 'profit-boost-30-token')
+    assert.equal(result.promoConsumed, true)
+    assert.equal(result.bets[0].outcome, 'win')
+    assert.equal(result.bets[0].promo.value, 13.65)
+    assert.equal(result.netProfit, 59.15)
   })
 })
 
-test('parlay boost requires all legs to win', async () => {
-  await withMockedRandom([0.99, 0.99, 0.99], () => {
+test('coin flip markets resolve near 50-50 probability', async () => {
+  await withMockedRandom([0.49, 0.51], () => {
     const result = simulateBets({
-      promoId: 'parlay-power-30',
       bets: [
-        { eventId: 'nba-lal-bos', selection: 'home', stake: 10 },
-        { eventId: 'nfl-kc-buf', selection: 'home', stake: 10 },
-        { eventId: 'mlb-nyy-lad', selection: 'home', stake: 10 }
+        { eventId: 'coin-flip-arena', selection: 'home', stake: 10 },
+        { eventId: 'coin-flip-collegiate', selection: 'away', stake: 10 }
       ]
     })
 
-    assert.equal(result.promo, undefined)
-    assert.ok(result.netProfit < 0)
+    assert.equal(result.bets[0].outcome, 'win')
+    assert.equal(result.bets[1].outcome, 'lose')
   })
 })
