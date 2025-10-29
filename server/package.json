@@ -1,0 +1,13 @@
+{
+  "name": "casinosimulation-server",
+  "version": "1.0.0",
+  "description": "API server for CasinoSimulation sports betting simulator",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
