@@ -1,0 +1,10 @@
+{
+  "name": "CasinoSimulation",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CasinoSimulation full-stack sports betting simulator",
+  "scripts": {
+    "lint": "node scripts/lint.js",
+    "test": "node --test server/src/__tests__/simulator.test.js && node scripts/test-client.js"
+  }
+}

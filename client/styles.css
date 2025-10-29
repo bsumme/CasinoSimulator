@@ -1,0 +1,216 @@
+:root {
+  color-scheme: light;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #111827;
+  background-color: #f3f4f6;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a, #111827 55%, #1f2937 100%);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: #f9fafb;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+header p {
+  margin: 0;
+  max-width: 720px;
+  color: rgba(249, 250, 251, 0.75);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.panel {
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: #f8fafc;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.events-list,
+.promotions-list,
+.bet-slip {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card,
+.promo-card,
+.bet-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.7);
+}
+
+.event-card h3 {
+  margin: 0 0 0.25rem 0;
+}
+
+.event-card p {
+  margin: 0.25rem 0;
+}
+
+.moneyline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  gap: 0.75rem;
+}
+
+.moneyline button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #f8fafc;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.moneyline button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(59, 130, 246, 0.4);
+}
+
+.moneyline button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.selection-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(96, 165, 250, 0.2);
+  font-size: 0.85rem;
+  color: #bfdbfe;
+}
+
+.bet-slip input,
+.bet-slip select {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
+  margin-top: 0.35rem;
+}
+
+.bet-slip button {
+  align-self: flex-end;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  color: #f8fafc;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.results-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bet-result {
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+}
+
+.bet-result h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.promo-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(30, 64, 175, 0.45);
+  border-radius: 12px;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.summary-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #e0e7ff;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 1.5rem;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 1.5rem 1rem;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+}
