@@ -14,34 +14,19 @@ promotions can change your returns without wagering real money.
 
 ## Getting started
 
-### Prerequisites
+The repository has no third-party npm dependencies, so there is nothing to install before running the tools.
 
-- Node.js 18 or newer (ships with a compatible version of `npm`).
-- Python 3 (only required if you use the built-in `http.server` helper to serve the front end).
+```bash
+# Start the API server (http://localhost:4000)
+npm --prefix server run start
 
-No additional dependencies need to be installed – both the API and the client rely solely on standard library tooling.
-
-### Step-by-step local setup
-
-1. **Start the API server** (listens on <http://localhost:4000>):
-
-   ```bash
-   npm --prefix server run start
-   ```
-
-   Leave this process running. It exposes the REST endpoints that power the simulation.
-
-2. **Serve the client application** from another terminal window. Any static file host will work; the example below uses Python's built-in server on port `5173`:
-
-   ```bash
-   python3 -m http.server --directory client 5173
-   ```
-
-3. **Open the dashboard** by navigating to <http://localhost:5173> in your browser. The React application will automatically fetch data from the API server you started in step 1.
+# Open the client (served statically)
+# Use any HTTP server to host the client directory, for example:
+python3 -m http.server --directory client 5173
+```
 
 The client imports React and ReactDOM from esm.sh at runtime and calls the API on `http://localhost:4000` by default.
-If you need to target a different backend, define `window.CASINO_API_BASE = "http://your-host:port";` in `index.html`
-before `main.js` is loaded.
+Override the endpoint by setting `window.CASINO_API_BASE` before loading `main.js` if you host the services elsewhere.
 
 ## Available scripts
 
