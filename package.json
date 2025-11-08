@@ -5,6 +5,7 @@
   "description": "CasinoSimulation full-stack sports betting simulator",
   "scripts": {
     "lint": "node scripts/lint.js",
-    "test": "node --test server/src/__tests__/simulator.test.js && node scripts/test-client.js"
+    "test": "node --test server/src/__tests__/simulator.test.js && node scripts/test-client.js",
+    "dev:client": "node scripts/serve-client.js"
   }
 }

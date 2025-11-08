@@ -21,7 +21,10 @@ The repository has no third-party npm dependencies, so there is nothing to insta
 npm --prefix server run start
 
 # Open the client (served statically)
-# Use any HTTP server to host the client directory, for example:
+# Recommended: use the built-in dev server helper (http://localhost:5173)
+npm run dev:client
+
+# Alternatively, use any HTTP server to host the client directory, for example:
 python3 -m http.server --directory client 5173
 ```
 
