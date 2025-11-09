@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Iterable, List
 
-from .scraper import DataTable, ScrapedReport
+from .scraper import ScrapedReport
 
 PRIORITY_STATUSES = {
     "out",

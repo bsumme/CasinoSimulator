@@ -1,54 +1,57 @@
-# CasinoSimulation
+# NFL Injury Report Tracker
 
-CasinoSimulation is a sandbox sportsbook experience built with Node.js and React (served from CDN modules).
-It provides a safe way to experiment with moneyline wagers, stack parlays, and explore how common sportsbook
-promotions can change your returns without wagering real money.
+This repository hosts a Python utility for collecting and distributing weekly NFL injury updates. The tool
+uses a headless Chrome session to gather publicly available injury reports for every team, summarises notable
+changes, and optionally emails a consolidated digest to interested recipients.
 
 ## Project structure
 
 ```
 .
-├── server          # Node HTTP API serving events, promotions, and simulation logic
-└── client          # React front-end delivered as native ES modules
+└── nfl_injury_report   # Python package containing the scraper, summariser, and emailer modules
 ```
 
 ## Getting started
 
-The repository has no third-party npm dependencies, so there is nothing to install before running the tools.
+Create and activate a Python 3.11+ virtual environment, then install the dependencies listed in
+`nfl_injury_report/requirements.txt` if present or install your own browser automation stack.
 
 ```bash
-# Start the API server (http://localhost:4000)
-npm --prefix server run start
-
-# Open the client (served statically)
-# Recommended: use the built-in dev server helper (http://localhost:5173)
-npm run dev:client
-
-# Alternatively, use any HTTP server to host the client directory, for example:
-python3 -m http.server --directory client 5173
+python -m venv .venv
+source .venv/bin/activate
+pip install -r nfl_injury_report/requirements.txt  # optional helper if you maintain a requirements file
 ```
 
-The client imports React and ReactDOM from esm.sh at runtime and calls the API on `http://localhost:4000` by default.
-Override the endpoint by setting `window.CASINO_API_BASE` before loading `main.js` if you host the services elsewhere.
+Set the environment variables used by the email sender before running the tool:
 
-## Available scripts
+- `SMTP_HOST`
+- `SMTP_PORT` (defaults to `587`)
+- `SMTP_USER` and `SMTP_PASSWORD`
+- `SMTP_SENDER` (defaults to `SMTP_USER`)
+- `INJURY_REPORT_RECIPIENT` (comma-separated list)
+
+Launch the scraper with:
 
 ```bash
-# Run automated tests (simulation engine + client smoke test)
-npm test
-
-# Run repository lint checks
-npm run lint
+python -m nfl_injury_report.main
 ```
 
-## Simulation overview
+### Useful flags
 
-The backend exposes three routes:
+- `--no-email` – Skip the email stage and only print the summarised report.
+- `--chrome-binary` – Provide an explicit Chrome or Chromium executable path.
+- `--limit N` – Restrict scraping to the first `N` teams (helpful for debugging).
 
-- `GET /api/events` – curated list of sample moneyline markets with American and decimal odds.
-- `GET /api/promotions` – sportsbook-style bonuses such as risk-free bets and parlay boosts.
-- `POST /api/simulate` – runs the simulation engine on the submitted bet slip, returning detailed outcomes
-  and any promo adjustments.
+## Tests
 
-Use the front-end dashboard to assemble bets, choose a promotion, and execute a virtual run before placing
-real wagers.
+The project includes a small pytest suite:
+
+```bash
+pip install pytest
+pytest nfl_injury_report/tests
+```
+
+## License
+
+This project removes all prior casino simulation assets and now focuses solely on the open-source NFL injury
+report tracking workflow.

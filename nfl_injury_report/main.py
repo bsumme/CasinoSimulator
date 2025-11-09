@@ -38,19 +38,18 @@ def main(argv: list[str] | None = None) -> int:
     fetcher = ChromeFetcher(binary=args.chrome_binary)
     scraper = InjuryReportScraper(fetcher=fetcher)
 
-    try:
-        teams = NFL_TEAMS
-        if args.limit is not None:
-            teams = teams[: args.limit]
+    teams = NFL_TEAMS
+    if args.limit is not None:
+        teams = teams[: args.limit]
 
-        reports = scraper.scrape_many(teams)
-        summary = summarise_reports(reports)
-        print(summary)
+    reports = scraper.scrape_many(teams)
+    summary = summarise_reports(reports)
+    print(summary)
 
-        if not args.no_email:
-            emailer = InjuryReportEmailer.from_environment()
-            message = emailer.build_email(reports)
-            emailer.send_email(message)
+    if not args.no_email:
+        emailer = InjuryReportEmailer.from_environment()
+        message = emailer.build_email(reports)
+        emailer.send_email(message)
 
     return 0
 
