@@ -36,16 +36,13 @@ pip install --upgrade pip
 
 ### Environment configuration
 
-The emailer reads its SMTP configuration from environment variables. The simplest way to manage
-them is with a `.env` file in the project root:
+The emailer uses the SendGrid REST API. Configure the API key, sender, and recipients via
+environment variables—using a `.env` file in the project root keeps things tidy:
 
 ```dotenv
 # .env
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=noreply@example.com
-SMTP_PASSWORD=changeme
-SMTP_SENDER="NFL Injury Bot <noreply@example.com>"
+SENDGRID_API_KEY=sg.your-api-key
+SENDGRID_SENDER="NFL Injury Bot <noreply@example.com>"
 INJURY_REPORT_RECIPIENT="alice@example.com,bob@example.com"
 ```
 
@@ -72,11 +69,8 @@ python -m nfl_injury_report.main --no-email
 If you prefer manual exports, set the variables yourself before running `python -m
 nfl_injury_report.main`:
 
-- `export SMTP_HOST=...`
-- `export SMTP_PORT=587`
-- `export SMTP_USER=...`
-- `export SMTP_PASSWORD=...`
-- `export SMTP_SENDER=...`
+- `export SENDGRID_API_KEY=...`
+- `export SENDGRID_SENDER=...`
 - `export INJURY_REPORT_RECIPIENT="alice@example.com,bob@example.com"`
 
 ### Useful flags
