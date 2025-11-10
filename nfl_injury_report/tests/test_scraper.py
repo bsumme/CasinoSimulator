@@ -4,7 +4,14 @@ from typing import Dict, List
 
 import pytest
 
-from nfl_injury_report.scraper import GOOGLE_SEARCH_URL, DataTable, InjuryReportScraper
+import subprocess
+
+from nfl_injury_report.scraper import (
+    GOOGLE_SEARCH_URL,
+    ChromeFetcher,
+    DataTable,
+    InjuryReportScraper,
+)
 
 
 class StubFetcher:
@@ -79,3 +86,24 @@ def test_scraper_falls_back_to_google_when_direct_has_no_tables(monkeypatch: pyt
     assert report.url == target_url
     assert report.tables and isinstance(report.tables[0], DataTable)
     assert fetcher.calls == [direct_url, search_url, target_url]
+
+
+def test_chrome_fetcher_uses_utf8_decoding(monkeypatch: pytest.MonkeyPatch) -> None:
+    recorded_kwargs: dict[str, object] = {}
+
+    def fake_run(*args, **kwargs):
+        recorded_kwargs.update(kwargs)
+
+        class Result:
+            stdout = "<html></html>"
+            stderr = ""
+
+        return Result()
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    fetcher = ChromeFetcher(binary="chrome")
+    fetcher.fetch("https://example.com")
+
+    assert recorded_kwargs["encoding"] == "utf-8"
+    assert recorded_kwargs["errors"] == "replace"

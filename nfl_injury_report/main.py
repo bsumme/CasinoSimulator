@@ -25,6 +25,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Only scrape the first N teams (useful for debugging)",
     )
+    parser.add_argument(
+        "--no-email",
+        dest="send_email",
+        action="store_false",
+        help="Skip the optional email delivery step",
+    )
+    parser.set_defaults(send_email=True)
     return parser.parse_args(argv)
 
 
@@ -87,6 +94,9 @@ def main(argv: list[str] | None = None) -> int:
     content = format_report_text(summary, reports)
     file_path.write_text(content, encoding="utf-8")
     print(f"Saved detailed report to {file_path}")
+
+    if not args.send_email:
+        print("Email delivery skipped (--no-email specified)")
 
     return 0
 
