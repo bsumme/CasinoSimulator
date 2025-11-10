@@ -38,6 +38,7 @@ pip install --upgrade pip
 
 - `--chrome-binary` – Provide an explicit Chrome or Chromium executable path.
 - `--limit N` – Restrict scraping to the first `N` teams (helpful for debugging).
+- `--no-email` – Skip any optional email delivery step (useful when running locally).
 
 Running the scraper writes the summary and detailed tables to a file named
 `InjuryNews_{Date__DayofWeek_Time}.txt` in the current working directory (for example,

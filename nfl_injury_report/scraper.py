@@ -83,6 +83,8 @@ class ChromeFetcher:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=self.timeout,
             )
         except FileNotFoundError as exc:  # pragma: no cover - configuration issue
