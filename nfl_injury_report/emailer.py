@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import os
-import smtplib
 from email.message import EmailMessage
+from http.client import HTTPSConnection
 from typing import Iterable
 
 from .scraper import ScrapedReport
@@ -16,47 +17,32 @@ class InjuryReportEmailer:
 
     def __init__(
         self,
-        smtp_host: str,
-        smtp_port: int,
-        smtp_user: str | None,
-        smtp_password: str | None,
+        api_key: str,
         sender: str,
         recipients: Iterable[str],
-        use_tls: bool = True,
     ) -> None:
-        self.smtp_host = smtp_host
-        self.smtp_port = smtp_port
-        self.smtp_user = smtp_user
-        self.smtp_password = smtp_password
+        self.api_key = api_key
         self.sender = sender
         self.recipients = list(recipients)
-        self.use_tls = use_tls
 
     @classmethod
     def from_environment(cls) -> "InjuryReportEmailer":
         """Create an emailer using configuration stored in environment variables."""
 
-        smtp_host = os.environ.get("SMTP_HOST")
-        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = os.environ.get("SMTP_USER")
-        smtp_password = os.environ.get("SMTP_PASSWORD")
-        sender = os.environ.get("SMTP_SENDER") or smtp_user
+        api_key = os.environ.get("SENDGRID_API_KEY")
+        sender = os.environ.get("SENDGRID_SENDER")
         recipients = os.environ.get("INJURY_REPORT_RECIPIENT")
 
-        if not smtp_host or not sender or not recipients:
+        if not api_key or not sender or not recipients:
             raise RuntimeError(
-                "SMTP_HOST, SMTP_SENDER/SMTP_USER, and INJURY_REPORT_RECIPIENT must be set"
+                "SENDGRID_API_KEY, SENDGRID_SENDER, and INJURY_REPORT_RECIPIENT must be set"
             )
 
         recipient_list = [email.strip() for email in recipients.split(",") if email.strip()]
         return cls(
-            smtp_host=smtp_host,
-            smtp_port=smtp_port,
-            smtp_user=smtp_user,
-            smtp_password=smtp_password,
+            api_key=api_key,
             sender=sender,
             recipients=recipient_list,
-            use_tls=True,
         )
 
     @staticmethod
@@ -99,19 +85,49 @@ class InjuryReportEmailer:
         return message
 
     def send_email(self, message: EmailMessage) -> None:
-        """Send a prepared email message using the configured SMTP server."""
+        """Send a prepared email message using the SendGrid API."""
 
-        if self.use_tls:
-            with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
-                server.starttls()
-                if self.smtp_user and self.smtp_password:
-                    server.login(self.smtp_user, self.smtp_password)
-                server.send_message(message)
-        else:
-            with smtplib.SMTP_SSL(self.smtp_host, self.smtp_port) as server:
-                if self.smtp_user and self.smtp_password:
-                    server.login(self.smtp_user, self.smtp_password)
-                server.send_message(message)
+        plain_body = message.get_body(preferencelist=("plain",))
+        html_body = message.get_body(preferencelist=("html",))
+
+        content = []
+        if plain_body is not None:
+            content.append({"type": "text/plain", "value": plain_body.get_content()})
+        if html_body is not None:
+            content.append({"type": "text/html", "value": html_body.get_content()})
+
+        if not content:
+            content.append({"type": "text/plain", "value": message.get_content()})
+
+        payload = {
+            "personalizations": [
+                {"to": [{"email": recipient} for recipient in self.recipients]}
+            ],
+            "from": {"email": self.sender},
+            "subject": message["Subject"],
+            "content": content,
+        }
+
+        connection = HTTPSConnection("api.sendgrid.com")
+        try:
+            connection.request(
+                "POST",
+                "/v3/mail/send",
+                body=json.dumps(payload),
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            response = connection.getresponse()
+            response.read()  # Ensure the connection can be reused/closed cleanly.
+            if response.status >= 400:
+                raise RuntimeError(
+                    "Failed to send email via SendGrid API: "
+                    f"{response.status} {response.reason}"
+                )
+        finally:
+            connection.close()
 
 
 __all__ = ["InjuryReportEmailer"]
