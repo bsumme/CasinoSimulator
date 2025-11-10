@@ -10,7 +10,7 @@ from html.parser import HTMLParser
 from typing import Iterable, List, Optional
 from urllib.parse import quote_plus, unquote
 
-from .teams import build_search_query
+from .teams import build_search_query, build_team_injury_url
 
 GOOGLE_SEARCH_URL = "https://www.google.com/search?q={query}"
 
@@ -184,7 +184,23 @@ class InjuryReportScraper:
         parser.feed(html)
         return parser.tables
 
-    def search(self, team_name: str) -> ScrapedReport:
+    def _scrape_direct_team_page(self, team_name: str) -> ScrapedReport | None:
+        direct_url = build_team_injury_url(team_name)
+        if direct_url is None:
+            return None
+
+        try:
+            page_html = self.fetcher.fetch(direct_url)
+        except Exception:  # pragma: no cover - defensive fallback
+            return None
+
+        tables = self._extract_tables(page_html)
+        if not tables:
+            return None
+
+        return ScrapedReport(team_name=team_name, url=direct_url, tables=tables)
+
+    def _scrape_via_google(self, team_name: str) -> ScrapedReport:
         query = build_search_query(team_name)
         search_url = GOOGLE_SEARCH_URL.format(query=quote_plus(query))
         search_html = self.fetcher.fetch(search_url)
@@ -205,6 +221,12 @@ class InjuryReportScraper:
             )
         return ScrapedReport(team_name=team_name, url=target_url, tables=tables)
 
+    def search(self, team_name: str) -> ScrapedReport:
+        direct_report = self._scrape_direct_team_page(team_name)
+        if direct_report is not None:
+            return direct_report
+        return self._scrape_via_google(team_name)
+
     def scrape_many(self, teams: Iterable[str]) -> List[ScrapedReport]:
         results: List[ScrapedReport] = []
         for team in teams:
@@ -213,7 +235,7 @@ class InjuryReportScraper:
             except Exception as exc:  # pragma: no cover - defensive logging
                 report = ScrapedReport(team_name=team, url=None, tables=[], error=str(exc))
             results.append(report)
-            time.sleep(1)
+            time.sleep(0.3)
         return results
 
 
