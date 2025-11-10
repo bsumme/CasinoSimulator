@@ -1,14 +1,14 @@
 # NFL Injury Report Tracker
 
-This repository hosts a Python utility for collecting and distributing weekly NFL injury updates. The tool
-uses a headless Chrome session to gather publicly available injury reports for every team, summarises notable
-changes, and optionally emails a consolidated digest to interested recipients.
+This repository hosts a Python utility for collecting weekly NFL injury updates. The tool uses a headless
+Chrome session to gather publicly available injury reports for every team, summarises notable changes, and
+saves the output to a timestamped text file for later review.
 
 ## Project structure
 
 ```
 .
-└── nfl_injury_report   # Python package containing the scraper, summariser, and emailer modules
+└── nfl_injury_report   # Python package containing the scraper and summariser modules
 ```
 
 ## Getting started
@@ -34,64 +34,14 @@ pip install --upgrade pip
 > required `pip` packages beyond what ships with CPython. Install additional dependencies only if
 > you plan to run tests or linters.
 
-### Environment configuration
-
-The emailer uses the SendGrid REST API. Configure the API key, sender, and recipients via
-environment variables—using a `.env` file in the project root keeps things tidy. Start by
-copying the included template and filling in the blanks:
-
-```bash
-cp .env.example .env
-```
-
-Populate the resulting `.env` file with your credentials. The template includes an optional
-`CHROME_BINARY` override that `nfl_injury_report/scraper.py::ChromeFetcher` respects when
-choosing which executable to launch (the code defaults to `google-chrome`). Example values:
-
-```dotenv
-# .env
-SENDGRID_API_KEY=sg.your-api-key
-SENDGRID_SENDER="NFL Injury Bot <noreply@example.com>"
-INJURY_REPORT_RECIPIENT="alice@example.com,bob@example.com"
-CHROME_BINARY="C:\Program Files\Google\Chrome\Application\chrome.exe"
-```
-
-Windows paths that contain spaces **must** remain quoted as shown above. Unix-like systems can
-set `CHROME_BINARY=/usr/bin/google-chrome` (or another Chromium build) without quotes unless the
-path itself contains spaces.
-
-Load the variables and run the scraper in one command on Linux/macOS shells:
-
-```bash
-set -a                     # export everything sourced from the file
-source .env
-set +a
-python -m nfl_injury_report.main --limit 4 --no-email
-```
-
-On Windows PowerShell, use:
-
-```powershell
-Get-Content .env | ForEach-Object {
-  if ($_ -match '^(?<key>[^#=]+)=(?<value>.*)$') {
-    Set-Item -Path env:$($Matches.key.Trim()) -Value $Matches.value.Trim('"')
-  }
-}
-python -m nfl_injury_report.main --no-email
-```
-
-If you prefer manual exports, set the variables yourself before running `python -m
-nfl_injury_report.main`:
-
-- `export SENDGRID_API_KEY=...`
-- `export SENDGRID_SENDER=...`
-- `export INJURY_REPORT_RECIPIENT="alice@example.com,bob@example.com"`
-
 ### Useful flags
 
-- `--no-email` – Skip the email stage and only print the summarised report.
 - `--chrome-binary` – Provide an explicit Chrome or Chromium executable path.
 - `--limit N` – Restrict scraping to the first `N` teams (helpful for debugging).
+
+Running the scraper writes the summary and detailed tables to a file named
+`InjuryNews_{Date__DayofWeek_Time}.txt` in the current working directory (for example,
+`InjuryNews_2024-01-02__Tuesday_15-04-05.txt`).
 
 ## Tests
 
