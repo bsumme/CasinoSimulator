@@ -37,14 +37,28 @@ pip install --upgrade pip
 ### Environment configuration
 
 The emailer uses the SendGrid REST API. Configure the API key, sender, and recipients via
-environment variables—using a `.env` file in the project root keeps things tidy:
+environment variables—using a `.env` file in the project root keeps things tidy. Start by
+copying the included template and filling in the blanks:
+
+```bash
+cp .env.example .env
+```
+
+Populate the resulting `.env` file with your credentials. The template includes an optional
+`CHROME_BINARY` override that `nfl_injury_report/scraper.py::ChromeFetcher` respects when
+choosing which executable to launch (the code defaults to `google-chrome`). Example values:
 
 ```dotenv
 # .env
 SENDGRID_API_KEY=sg.your-api-key
 SENDGRID_SENDER="NFL Injury Bot <noreply@example.com>"
 INJURY_REPORT_RECIPIENT="alice@example.com,bob@example.com"
+CHROME_BINARY="C:\Program Files\Google\Chrome\Application\chrome.exe"
 ```
+
+Windows paths that contain spaces **must** remain quoted as shown above. Unix-like systems can
+set `CHROME_BINARY=/usr/bin/google-chrome` (or another Chromium build) without quotes unless the
+path itself contains spaces.
 
 Load the variables and run the scraper in one command on Linux/macOS shells:
 
