@@ -61,12 +61,15 @@ def format_report_text(summary: str, reports: list[ScrapedReport]) -> str:
             for table in report.tables:
                 if table.is_empty():
                     continue
-                header_line = " | ".join(table.headers)
-                separator_line = "-+-".join("-" * len(header) for header in table.headers)
+                header_line = " | ".join(str(header) for header in table.headers)
+                separator_line = "-+-".join("-" * len(str(header)) for header in table.headers)
                 lines.append(header_line)
                 if separator_line:
                     lines.append(separator_line)
-                lines.extend(" | ".join(row) for row in table.rows)
+                lines.extend(
+                    " | ".join("" if cell is None else str(cell) for cell in row)
+                    for row in table.rows
+                )
                 lines.append("")
         else:
             lines.append("No table data was captured.")
