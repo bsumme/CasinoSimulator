@@ -45,3 +45,9 @@ def test_format_report_text_includes_summary_and_table_data() -> None:
 def test_parse_args_supports_no_email_flag() -> None:
     args = parse_args(["--no-email"])
     assert not args.send_email
+    assert not args.debug
+
+
+def test_parse_args_supports_debug_flag() -> None:
+    args = parse_args(["--debug"])
+    assert args.debug

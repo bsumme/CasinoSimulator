@@ -88,6 +88,29 @@ def test_scraper_falls_back_to_google_when_direct_has_no_tables(monkeypatch: pyt
     assert fetcher.calls == [direct_url, search_url, target_url]
 
 
+def test_scraper_handles_missing_injury_table_notice(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "nfl_injury_report.scraper.build_search_query",
+        lambda _: "unused",
+    )
+    direct_url = "https://www.nfl.com/teams/new-orleans-saints/injuries/"
+    no_table_html = """
+    <html>
+      <body>
+        <p>The injury report is not yet available.</p>
+      </body>
+    </html>
+    """
+    fetcher = StubFetcher({direct_url: [no_table_html]})
+
+    scraper = InjuryReportScraper(fetcher=fetcher)
+    report = scraper.search("New Orleans Saints")
+
+    assert report.url == direct_url
+    assert report.tables == []
+    assert report.error == "Injury report not published for this week"
+
+
 def test_chrome_fetcher_uses_utf8_decoding(monkeypatch: pytest.MonkeyPatch) -> None:
     recorded_kwargs: dict[str, object] = {}
 
